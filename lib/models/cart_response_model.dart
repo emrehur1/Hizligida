@@ -1,18 +1,18 @@
 class CartResponseModel {
   bool status;
   List<CartItem>? data;
-  String message;
+  //String message;
 
   CartResponseModel({
     required this.status,
     this.data,
-    required this.message,
+    //required this.message,
   });
 
   factory CartResponseModel.fromJson(Map<String, dynamic> json) {
     return CartResponseModel(
       status: json['status'],
-      message: json['message'],
+      //message: json['message'],
       data: (json['data'] as List<dynamic>?)
           ?.map((v) => CartItem.fromJson(v))
           .toList(),
@@ -22,7 +22,7 @@ class CartResponseModel {
   Map<String, dynamic> toJson() {
     return {
       'status': status,
-      'message': message,
+      //'message': message,
       'data': data?.map((v) => v.toJson()).toList(),
     };
   }

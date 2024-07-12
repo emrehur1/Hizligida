@@ -223,18 +223,29 @@ class APIService {
 
       if (response.statusCode == 200) {
         responseModel = CartResponseModel.fromJson(response.data);
+      } else {
+        /*print('Unexpected status code: ${response.statusCode}');
+        print('Response data: ${response.data}');*/
       }
     } on DioError catch (e) {
       if (e.response?.statusCode == 404) {
-        print(e.response?.statusCode);
+        /*print('Status code: ${e.response?.statusCode}');
+        print('Response data: ${e.response?.data}');*/
       } else {
-        print(e.message);
-        print(e.requestOptions);
+        /*print('DioError message: ${e.message}');
+        print('Request options: ${e.requestOptions}');
+        print('Response data: ${e.response?.data}');*/
       }
+    } catch (e) {
+      print('General error: $e');
     }
+
+    // Gelen veriyi ve hatayı konsolda görmek için
+    //print('Final response model: $responseModel');
 
     return responseModel;
   }
+
 
   Future<CartResponseModel?> getCartItems() async {
     CartResponseModel? responseModel;

@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hizligida/models/product.dart';
 import 'package:hizligida/utils/custom_stepper.dart';
-import 'package:hizligida/utils/expand_text.dart'; // ExpandableText bileşenini dahil edin
+import 'package:hizligida/utils/expand_text.dart';
 import 'package:hizligida/widgets/widget_related_products.dart';
 import 'package:hizligida/provider/load_provider.dart';
 import 'package:hizligida/provider/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:hizligida/models/cart_request_model.dart';
-//import 'package:hizligida/models/cart_response_model.dart';
 
 class ProductDetailsWidget extends StatefulWidget {
   final Product data;
   CartProducts cartProducts = CartProducts();
-
 
   ProductDetailsWidget({Key? key, required this.data}) : super(key: key);
 
@@ -22,9 +20,15 @@ class ProductDetailsWidget extends StatefulWidget {
 }
 
 class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
-  int qty = 1; // Define qty as a state variable
+  int qty = 1;
 
   final CarouselController _controller = CarouselController();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.cartProducts.quantity = qty; // Initialize the cartProducts quantity
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +43,7 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20), // AppBar ile resim arasına boşluk ekledik
+              SizedBox(height: 20),
               productImages(widget.data.images ?? [], context),
               SizedBox(height: 10),
               Visibility(
@@ -94,32 +98,35 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CustomStepper(
-                    lowerLimit: 0,
+                    lowerLimit: 1,
                     upperLimit: 20,
                     stepValue: 1,
                     iconSize: 22.0,
                     value: qty,
                     onChanged: (value) {
-
-                        widget.cartProducts.quantity = value;
-
+                      setState(() {
+                        qty = value;
+                      });
+                      widget.cartProducts.quantity = qty;
                     },
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      Provider.of<LoaderProvider>(context, listen: false).setLoadingStatus(true);
+                      Provider.of<LoaderProvider>(context, listen: false)
+                          .setLoadingStatus(true);
 
-                      var cartProvider = Provider.of<CartProvider>(context, listen: false);
+                      var cartProvider =
+                      Provider.of<CartProvider>(context, listen: false);
 
-                      // Örnek ürün bilgilerini ayarla
                       widget.cartProducts.productId = widget.data.id;
 
-                      // Sepete ekleme işlemini gerçekleştir
-                      cartProvider.addToCart(widget.cartProducts,(val){
-                        Provider.of<LoaderProvider>(context,listen: false)
-                            .setLoadingStatus(false);
-                            print(val);
-                      },
+                      cartProvider.addToCart(
+                        widget.cartProducts,
+                            (val) {
+                          Provider.of<LoaderProvider>(context, listen: false)
+                              .setLoadingStatus(false);
+                          print(val);
+                        },
                       );
                     },
                     child: Text(
@@ -191,13 +198,13 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
                 itemCount: images.length,
                 options: CarouselOptions(
                   enlargeCenterPage: true,
-                  viewportFraction: 0.9, // Viewport fraction ile kenar boşlukları ayarlıyoruz
+                  viewportFraction: 0.9,
                   aspectRatio: 1.0,
                   autoPlay: false,
                 ),
                 itemBuilder: (context, index, rindex) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0), // Kenarlara boşluk ekliyoruz
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
                     child: Image.network(
                       images[index].src ?? "",
                       fit: BoxFit.contain,
