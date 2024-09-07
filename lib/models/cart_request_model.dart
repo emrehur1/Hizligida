@@ -27,22 +27,24 @@ class CartRequestModel {
 class CartProducts {
   int? productId;
   int? quantity;
-  //int? variationId = 0;
+  int? variationId;
 
-  CartProducts({this.productId, this.quantity,/* this.variationId*/});
+  CartProducts({this.productId, this.quantity, this.variationId}); // variationId parametresi eklendi
 
   CartProducts.fromJson(Map<String, dynamic> json) {
     productId = json['product_id'];
     quantity = json['quantity'];
-    //variationId = json['variation_id'];
+    variationId = json['variation_id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['product_id'] = productId;
     data['quantity'] = quantity;
-   // data['variation_id'] = variationId;
+    data['variation_id'] = variationId;
 
     return data;
   }
 }
+
+

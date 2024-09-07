@@ -2,7 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:hizligida/models/customers.dart';
 import '../api_service.dart';
+import '../shared_service.dart';
 import '../utils/validator_service.dart';
+import 'home_page.dart';
 import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,48 +29,26 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        automaticallyImplyLeading: true,
-        title: Text("Giriş"),
-      ),
-      body: _uiSetup(context),
-    );
-  }
-
-  Widget _uiSetup(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Stack(
+      backgroundColor: Colors.white, // Arka planı beyaz yap
+      body: Stack(
+        children: <Widget>[
+          SingleChildScrollView(
+            child: Column(
               children: <Widget>[
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-                  margin: EdgeInsets.symmetric(vertical: 85, horizontal: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(40),
-                    color: Colors.black26,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(context).hintColor.withOpacity(0.2),
-                        offset: Offset(0, 10),
-                        blurRadius: 20,
-                      )
-                    ],
-                  ),
+                SizedBox(height: 50), // Logonun üstte kalması için boşluk
+                Image.asset(
+                  'assets/img/logo.PNG', // Üstteki logo
+                  width: 150,
+                  height: 150,
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Form(
                     key: globalKey,
                     child: Column(
                       children: <Widget>[
                         SizedBox(height: 25),
-                        Text(
-                          "Giriş",
-                          //style: Theme.of(context).textTheme.headline2,
-                        ),
-                        SizedBox(height: 20),
                         TextFormField(
                           keyboardType: TextInputType.emailAddress,
                           onSaved: (input) => username = input,
@@ -79,27 +59,30 @@ class _LoginPageState extends State<LoginPage> {
                               return "Email geçersiz.";
                             }
                           },
-
                           decoration: InputDecoration(
-                            hintText: "Email Addres",
-                            errorStyle: TextStyle(color: Colors.white),
+                            hintText: "Email Adresi",
+                            hintStyle: TextStyle(
+                              color: Colors.black, // Siyah yazı rengi
+                              fontFamily: 'Poppins',
+                            ),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .primaryColor
-                                        .withOpacity(0.4))),
+                              borderSide: BorderSide(color: Colors.black),
+                            ),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).primaryColor)),
+                              borderSide: BorderSide(color: Colors.black),
+                            ),
                             prefixIcon: Icon(
                               Icons.email,
-                              color: Theme.of(context).primaryColor,
+                              color: Colors.black, // İkon rengi siyah
                             ),
                           ),
                         ),
                         SizedBox(height: 20),
                         TextFormField(
-                          style: TextStyle(color: Theme.of(context).primaryColor),
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'Poppins',
+                          ),
                           keyboardType: TextInputType.text,
                           onSaved: (input) => password = input,
                           validator: (input) {
@@ -109,27 +92,22 @@ class _LoginPageState extends State<LoginPage> {
                               return null;
                             }
                           },
-
                           obscureText: hidePassword,
                           decoration: InputDecoration(
                             hintText: "Şifre",
-                            errorStyle: TextStyle(color: Colors.white),
-                            errorBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                              ),
+                            hintStyle: TextStyle(
+                              color: Colors.black, // Siyah yazı rengi
+                              fontFamily: 'Poppins',
                             ),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context)
-                                        .primaryColor
-                                        .withOpacity(0.4))),
+                              borderSide: BorderSide(color: Colors.black),
+                            ),
                             focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).primaryColor)),
+                              borderSide: BorderSide(color: Colors.black),
+                            ),
                             prefixIcon: Icon(
                               Icons.lock,
-                              color: Theme.of(context).primaryColor,
+                              color: Colors.black, // İkon rengi siyah
                             ),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -137,17 +115,17 @@ class _LoginPageState extends State<LoginPage> {
                                   hidePassword = !hidePassword;
                                 });
                               },
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.4),
-                              icon: Icon(hidePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
+                              color: Colors.black,
+                              icon: Icon(
+                                hidePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
                             ),
                           ),
                         ),
                         SizedBox(height: 30),
-                        TextButton(
+                        ElevatedButton(
                           onPressed: () {
                             if (validateAndSave()) {
                               setState(() {
@@ -160,31 +138,23 @@ class _LoginPageState extends State<LoginPage> {
                                   isApiCallProcess = false;
                                 });
 
-                                if (ret != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text("WooCommerce App"),
-                                        content: Text("Login Successful"),
-                                        actions: [
-                                          TextButton(
-                                            child: Text("Ok"),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
+                                if (ret != null && ret.success == true) {
+                                  SharedService.setLoginDetails(ret);
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          HomePage(selectedPage: 3),
+                                    ),
+                                    ModalRoute.withName("/Home"),
                                   );
                                 } else {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text("WooCommerce App"),
-                                        content: Text("Invalid Login!!"),
+                                        title: Text("AJIO"),
+                                        content: Text("Hatalı Giriş"),
                                         actions: [
                                           TextButton(
                                             child: Text("Ok"),
@@ -200,19 +170,23 @@ class _LoginPageState extends State<LoginPage> {
                               });
                             }
                           },
-                          child: Text(
-                            "Login",
-                            style: TextStyle(color: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black, // Buton rengi siyah yapıldı
+                            padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0), // Köşeleri yuvarlat
+                            ),
+                            shadowColor: Colors.black.withOpacity(0.2),
+                            elevation: 5, // Gölge efekti
                           ),
-                        ),
-                        SizedBox(height: 15),
-                        const Center(
                           child: Text(
-                            "OR",
+                            "Giriş",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
+                              color: Colors.white, // Yazı rengi beyaz
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1,
+                              fontFamily: 'Poppins', // Yazı fontu olarak Poppins kullan
                             ),
                           ),
                         ),
@@ -228,15 +202,18 @@ class _LoginPageState extends State<LoginPage> {
                             child: RichText(
                               text: TextSpan(
                                 style: const TextStyle(
-                                    color: Colors.black, fontSize: 14.0),
+                                  color: Colors.black,
+                                  fontSize: 14.0,
+                                  fontFamily: 'Poppins',
+                                ),
                                 children: <TextSpan>[
                                   const TextSpan(
-                                    text: 'Dont have an account? ',
+                                    text: 'Hesabınız yok mu? ',
                                   ),
                                   TextSpan(
-                                    text: 'Sign up',
+                                    text: 'Kayıt olun',
                                     style: const TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     recognizer: TapGestureRecognizer()
@@ -260,8 +237,29 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: 40, // İkonu üst kısma yerleştirme
+            right: 20, // İkonu sağ kısma yerleştirme
+            child: IconButton(
+              icon: Icon(
+                Icons.close,
+                color: Colors.black, // İkon rengi siyah
+              ),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage(selectedPage: 0)),
+                      (Route<dynamic> route) => false,
+                );
+              },
+            ),
+          ),
+          if (isApiCallProcess)
+            Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
     );
   }

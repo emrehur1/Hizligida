@@ -34,10 +34,12 @@ class _WidgetCategoriesState extends State<WidgetCategories> {
               Padding(
                 padding: EdgeInsets.only(left: 16, top: 10),
                 child: Text(
-                  'All Categories',
+                  'Tüm Kategoriler',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+
                   ),
                 ),
               ),
@@ -47,7 +49,7 @@ class _WidgetCategoriesState extends State<WidgetCategories> {
                   onPressed: () {},
                   child: Text(
                     'View All',
-                    style: TextStyle(color: Colors.redAccent),
+                    style: TextStyle(color: Colors.redAccent,fontFamily: 'Poppins',),
                   ),
                 ),
               ),
@@ -130,6 +132,7 @@ class _WidgetCategoriesState extends State<WidgetCategories> {
                   Flexible(  // Flexible eklenerek metnin boyutunu mevcut alana göre ayarlaması sağlanıyor
                     child: Text(
                       data.categoryName ?? '',
+                      style: TextStyle(fontFamily: 'Poppins',),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -3,7 +3,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:hizligida/widgets/widget_home_products.dart';
 import 'package:hizligida/widgets/widgets_home_categories.dart';
 import 'package:hizligida/widgets/widget_home_products.dart';
-
 import 'package:hizligida/config.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -19,11 +18,10 @@ class _DashboardPageState extends State<DashboardPage> {
         color: Colors.white,
         child: ListView(
           children: [
-            imageCarousel(context),
             WidgetCategories(),
-            WidgetHomeProducts(labelName: "Top Saver Today",tagId: Config.todayOffersTagId,),
+            imageCarousel(context),
+            WidgetHomeProducts(labelName: "Çok Satan Ürünler",tagId: Config.todayOffersTagId,),
             WidgetHomeProducts(labelName: "Top Selling Product",tagId: Config.topSellingProductsTagId,),
-
           ],
         ),
       ),
@@ -54,9 +52,9 @@ class _DashboardPageState extends State<DashboardPage> {
           scrollDirection: Axis.horizontal,
         ),
         items: [
-          'https://media.istockphoto.com/id/855098134/tr/foto%C4%9Fraf/sa%C4%9Fl%C4%B1k-g%C4%B1da-fitness-i%C3%A7in.jpg?s=612x612&w=0&k=20&c=nnndfASlOcl_hXyY3RnO5dsR5cOOXEwHL9NEdH3ygfI=',
-          'https://rgtedarik.com/wp-content/uploads/2021/04/rg-tedarik-toptan-temizlik-malzemeleri-1.jpg',
-          'https://www.batmanburada.com.tr/wp-content/uploads/2024/03/et-tavuk-balik.jpg'
+          'assets/img/1.png',
+          'assets/img/2.png',
+          'assets/img/3.png',
         ].map((i) {
           return Builder(
             builder: (BuildContext context) {
@@ -68,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 child: FittedBox(
                   fit: BoxFit.fill,
-                  child: Image.network(
+                  child: Image.asset(
                     i,
                     fit: BoxFit.fill,
                   ),

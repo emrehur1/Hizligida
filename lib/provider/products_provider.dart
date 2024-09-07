@@ -3,6 +3,10 @@ import 'package:hizligida/models/product.dart';
 import 'package:hizligida/api_service.dart';
 
 
+import 'package:flutter/material.dart';
+import 'package:hizligida/models/product.dart';
+import 'package:hizligida/api_service.dart';
+
 class SortBy {
   String value;
   String text;
@@ -15,8 +19,11 @@ enum LoadMoreStatus { INITIAL, LOADING, STABLE }
 
 class ProductsProvider with ChangeNotifier {
   APIService? _apiService;
-  List<Product> _productsList = [];
+  List<Product> _allProducts = []; // Tüm ürünlerin saklandığı orijinal liste
+  List<Product> _filteredProducts = []; // Filtrelenmiş ürünler
+  List<Product> _productsList = []; // UI'da gösterilen ürünler
   SortBy? _sortBy;
+  String? _currentCategoryId; // Mevcut kategori kimliği
 
   int totalPages = 0;
   int pageSize = 20;
@@ -34,6 +41,8 @@ class ProductsProvider with ChangeNotifier {
 
   void resetStreams() {
     _apiService = APIService();
+    _allProducts = [];
+    _filteredProducts = [];
     _productsList = [];
   }
 
@@ -45,6 +54,8 @@ class ProductsProvider with ChangeNotifier {
         String? sortBy,
         String sortOrder = "asc",
       }) async {
+    _currentCategoryId = categoryId; // Mevcut kategori kimliğini saklıyoruz
+
     List<Product> itemModel = await _apiService!.getProducts(
       strSearch: strSearch,
       pageNumber: pageNumber,
@@ -56,135 +67,113 @@ class ProductsProvider with ChangeNotifier {
     );
 
     if (itemModel.isNotEmpty) {
-      _productsList.addAll(itemModel);
+      _allProducts.addAll(itemModel);
+
+      if (strSearch != null && strSearch.isNotEmpty) {
+        // Arama teriminin ürün adında geçip geçmediğini kontrol eden filtreleme
+        _filterSearchResults(_allProducts, strSearch);
+      } else {
+        _filteredProducts = _allProducts;
+        _productsList = _filteredProducts; // İlk başta tüm ürünler gösterilir
+      }
     }
 
     setLoadingState(LoadMoreStatus.STABLE);
     notifyListeners();
   }
 
+
+
+
+
+
   void setLoadingState(LoadMoreStatus loadMoreStatus) {
     _loadMoreStatus = loadMoreStatus;
     notifyListeners();
   }
 
-  void setSortOrder(SortBy sortBy) {
+  void setSortOrder(SortBy sortBy, {String? categoryId}) {
     _sortBy = sortBy;
     resetStreams();
-    fetchProducts(1);
+    fetchProducts(1, categoryId: categoryId); // categoryId geçiliyor
   }
+
+  void filterProductsByAttributes(
+      List<String> selectedColors, // Seçilen renklerin listesi
+      List<String> selectedSizes, // Seçilen bedenlerin listesi
+      double minPrice, // Minimum fiyat
+      double maxPrice) async { // Maksimum fiyat
+    resetStreams(); // Filtreleme işleminden önce mevcut ürün listesini sıfırla
+    await fetchProducts(1, categoryId: _currentCategoryId); // Belirtilen kategoriye göre ürünleri getir
+
+    List<Product> filteredList = _allProducts.where((product) {
+      bool matchesColor = selectedColors.isEmpty ? true : false; // Eğer renk seçilmemişse true, seçilmişse false olarak başla
+      bool matchesSize = selectedSizes.isEmpty ? true : false; // Eğer beden seçilmemişse true, seçilmişse false olarak başla
+      bool matchesPrice = false; // Fiyat eşleşmesi için başlangıçta false olarak ayarla
+
+      if (product.attributes != null) { // Ürün özellikleri varsa
+        for (var attribute in product.attributes!) { // Her bir özellik için döngü başlat
+          if (attribute.name == "Renk" && attribute.options != null) { // Özellik ismi "Renk" ise ve seçenekler varsa
+            for (var option in attribute.options!) { // Renk seçenekleri arasında dolaş
+              if (selectedColors.contains(option)) { // Eğer seçilen renkler arasında mevcutsa
+                matchesColor = true; // matchesColor'u true yap
+              }
+            }
+          }
+          if (attribute.name == "Beden" && attribute.options != null) { // Özellik ismi "Beden" ise ve seçenekler varsa
+            for (var option in attribute.options!) { // Beden seçenekleri arasında dolaş
+              if (selectedSizes.contains(option)) { // Eğer seçilen bedenler arasında mevcutsa
+                matchesSize = true; // matchesSize'ı true yap
+              }
+            }
+          }
+        }
+      }
+
+      if (product.salePrice != null) { // Eğer ürün indirimli fiyata sahipse
+        double price = double.tryParse(product.salePrice!) ?? 0.0; // İndirimli fiyatı double olarak al
+        matchesPrice = price >= minPrice && price <= maxPrice; // Eğer fiyat belirtilen aralıkta ise matchesPrice'ı true yap
+      } else if (product.regularPrice != null) { // Eğer ürünün normal fiyatı varsa
+        double price = double.tryParse(product.regularPrice!) ?? 0.0; // Normal fiyatı double olarak al
+        matchesPrice = price >= minPrice && price <= maxPrice; // Eğer fiyat belirtilen aralıkta ise matchesPrice'ı true yap
+      }
+
+      return matchesColor && matchesSize && matchesPrice; // Renk, beden ve fiyat kriterlerini sağlayan ürünleri döndür
+    }).toList();
+
+    _productsList = filteredList; // Filtrelenmiş ürün listesini _productsList'e ata
+    notifyListeners(); // Dinleyicilere değişiklik olduğunu bildir
+  }
+
+  void _filterSearchResults(List<Product> allProducts, String searchTerm) {
+    List<Product> matches = [];
+
+    for (var product in allProducts) {
+      if (product.name != null) {
+        String productName = product.name!.toLowerCase();
+        String lowerSearchTerm = searchTerm.toLowerCase();
+
+        // Ürün adını kelimelere ayır ve her kelimenin arama terimi ile başlayıp başlamadığını kontrol et
+        List<String> wordsInProductName = productName.split(' ');
+
+        bool startsWithSearchTerm = wordsInProductName.any((word) => word.startsWith(lowerSearchTerm));
+
+        if (startsWithSearchTerm) {
+          matches.add(product);
+        }
+      }
+    }
+
+    // Eşleşen ürünlerle sonuçları güncelle
+    _productsList = matches;
+    notifyListeners();
+  }
+
+
+
+
+
+
 }
 
-class ProductCard extends StatelessWidget {
-  final Product data;
 
-  ProductCard({Key? key, required this.data}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0XFFFFFFFF),
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xfff8f8f8),
-            blurRadius: 15,
-            spreadRadius: 10,
-          ),
-        ],
-      ),
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Visibility(
-              visible: data.calculateDiscount() > 0,
-              child: Align(
-                alignment: Alignment.topLeft,
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Text(
-                    '${data.calculateDiscount()}% OFF',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Flexible(
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color(0xffE65829).withAlpha(40),
-                  ),
-                  Image.network(
-                    data.images != null &&
-                        data.images!.isNotEmpty &&
-                        data.images![0].src != null
-                        ? data.images![0].src!
-                        : "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg",
-                    height: 160,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.network(
-                        "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg",
-                        height: 160,
-                        fit: BoxFit.cover,
-                      );
-                    },
-                    fit: BoxFit.cover,
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Text(
-              data.name ?? '',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                if (data.salePrice != data.regularPrice)
-                  Text(
-                    "\$${data.regularPrice}",
-                    style: TextStyle(
-                      fontSize: 14,
-                      decoration: TextDecoration.lineThrough,
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                SizedBox(width: 5),
-                Text(
-                  "\$${data.salePrice}",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

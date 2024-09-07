@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hizligida/models/product.dart';
 import 'package:hizligida/pages/product_details.dart';
-import 'package:hizligida/pages/product_details.dart';
 
 class ProductCard extends StatelessWidget {
   final Product data;
@@ -10,6 +9,17 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double price = double.tryParse(data.price ?? '0') ?? 0.0;
+    double regularPrice = double.tryParse(data.regularPrice ?? '0') ?? 0.0;
+    double salePrice = double.tryParse(data.salePrice ?? '0') ?? 0.0;
+
+    // Değişken ürünlerin ilk değerinin fiyatlarını almak
+    if (data.type == "variable" && data.variableProduct != null) {
+      regularPrice = double.tryParse(data.variableProduct!.regularPrice) ?? 0.0;
+      salePrice = double.tryParse(data.variableProduct!.salePrice) ?? 0.0;
+      price = salePrice;
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -17,7 +27,6 @@ class ProductCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => ProductDetails(
               product: data,
-
             ),
           ),
         );
@@ -61,6 +70,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               Flexible(
                 child: Stack(
                   alignment: Alignment.center,
@@ -80,6 +90,7 @@ class ProductCard extends StatelessWidget {
                         return Image.network(
                           "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg",
                           height: 160,
+
                           fit: BoxFit.cover,
                         );
                       },
@@ -101,9 +112,9 @@ class ProductCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  if (data.salePrice != data.regularPrice)
+                  if (regularPrice != salePrice)
                     Text(
-                      "\$${data.regularPrice}",
+                      "₺${regularPrice.toStringAsFixed(2)}",
                       style: TextStyle(
                         fontSize: 14,
                         decoration: TextDecoration.lineThrough,
@@ -113,7 +124,7 @@ class ProductCard extends StatelessWidget {
                     ),
                   SizedBox(width: 5),
                   Text(
-                    "\$${data.salePrice}",
+                    "₺${salePrice.toStringAsFixed(2)}",
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.black,

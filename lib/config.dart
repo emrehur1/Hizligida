@@ -10,5 +10,9 @@ class Config {
  static String topSellingProductsTagId = "26";
  static String addtoCartURL ="addtocart";
  static String cartURL = "cart";
- static String userId = "3";
+ static String countriesURL = "data/countries";
+ static String variableProductsURL= "variations";
+ static String ordersURL = "orders";
+ static String currency = "\₺ ";
+ static String clearCartURL = "clear-cart";
 }

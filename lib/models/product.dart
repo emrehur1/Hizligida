@@ -1,3 +1,5 @@
+import 'variable_product.dart';
+
 class Product {
   int? id;
   String? name;
@@ -10,8 +12,10 @@ class Product {
   String? stockStatus;
   List<Images>? images;
   List<Categories>? categories;
-  List<Attributes>? attributes;
+  List<ProductAttributes>? attributes; // Güncellenmiş sınıf adı
   List<int>? relatedIds;
+  String? type;
+  VariableProduct? variableProduct;
 
   Product({
     this.id,
@@ -27,6 +31,8 @@ class Product {
     this.categories,
     this.attributes,
     this.relatedIds,
+    this.type,
+    this.variableProduct,
   });
 
   Product.fromJson(Map<String, dynamic> json) {
@@ -40,6 +46,7 @@ class Product {
     salePrice = json['sale_price'] != "" ? json['sale_price'] : json['regular_price'];
     stockStatus = json['stock_status'];
     relatedIds = json['cross_sell_ids']?.cast<int>() ?? [];
+    type = json["type"];
 
     if (json['categories'] != null) {
       categories = [];
@@ -58,7 +65,7 @@ class Product {
     if (json['attributes'] != null) {
       attributes = [];
       json['attributes'].forEach((v) {
-        attributes?.add(Attributes.fromJson(v));
+        attributes?.add(ProductAttributes.fromJson(v));
       });
     }
   }
@@ -84,10 +91,14 @@ class Product {
   }
 
   int calculateDiscount() {
-    double regularPrice = double.parse(this.regularPrice ?? '0');
-    double salePrice = this.salePrice != "" ? double.parse(this.salePrice ?? '0') : regularPrice;
-    double discount = regularPrice - salePrice;
-    double disPercent = (discount / regularPrice) * 100;
+    double disPercent = 0;
+
+    if (this.regularPrice != "") {
+      double regularPrice = double.parse(this.regularPrice ?? '0');
+      double salePrice = this.salePrice != "" ? double.parse(this.salePrice ?? '0') : regularPrice;
+      double discount = regularPrice - salePrice;
+      disPercent = (discount / regularPrice) * 100;
+    }
 
     return disPercent.round();
   }
@@ -128,14 +139,14 @@ class Images {
   }
 }
 
-class Attributes {
+class ProductAttributes {
   int? id;
   String? name;
   List<String>? options;
 
-  Attributes({this.id, this.name, this.options});
+  ProductAttributes({this.id, this.name, this.options});
 
-  Attributes.fromJson(Map<String, dynamic> json) {
+  ProductAttributes.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     options = json['options']?.cast<String>();

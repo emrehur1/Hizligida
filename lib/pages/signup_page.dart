@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hizligida/models/customers.dart';
 import '../api_service.dart';
+import '../utils/form_helper.dart';
 import '../utils/validator_service.dart';
+import 'home_page.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -181,17 +183,22 @@ class _SignupPageState extends State<SignupPage> {
                           isApiCallProcess = false;
                         });
 
-                        if (ret) {
-                          showMessage(
+                        if (ret != null) {
+                          FormHelper.showMessage(
                             context,
                             "Hızlı Gıda",
                             "Kayıt Başarılı!",
                             "Tamam",
                                 () {
-                              Navigator.of(context).pop();
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(builder: (context) => HomePage(selectedPage: 0)),
+                                    (Route<dynamic> route) => false,
+                              );
                             },
                           );
-                        } else {
+                        }
+                        else {
                           showMessage(
                             context,
                             "Hızlı Gıda",

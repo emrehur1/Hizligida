@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hizligida/api_service.dart';
 import 'package:hizligida/models/product.dart';
+import 'package:hizligida/pages/product_details.dart'; // ProductDetails import edildi
 
 class WidgetRelatedProducts extends StatefulWidget {
   final String? labelName;
@@ -42,16 +43,7 @@ class _WidgetRelatedProductsState extends State<WidgetRelatedProducts> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 16, top: 4),
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'View All',
-                    style: TextStyle(color: Colors.redAccent),
+                    fontFamily: "Poppins"
                   ),
                 ),
               ),
@@ -97,73 +89,86 @@ class _WidgetRelatedProductsState extends State<WidgetRelatedProducts> {
         itemCount: items.length,
         itemBuilder: (context, index) {
           var data = items[index];
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.all(10),
-                width: 130,
-                height: 120,
-                alignment: Alignment.center,
-                child: data.images != null && data.images!.isNotEmpty
-                    ? Image.network(
-                  data.images![0].src!,
-                  height: 120,
-                )
-                    : Container(), // Resim yoksa boş bir container göster
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(4),
-                  color: Colors.black12,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(0, 5),
-                      blurRadius: 15,
-                    ),
-                  ],
+          return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetails(product: data),
                 ),
-              ),
-              Container(
-                width: 130,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  data.name ?? '', // data.name null ise boş bir string göster
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black,
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.all(10),
+                  width: 130,
+                  height: 120,
+                  alignment: Alignment.center,
+                  child: data.images != null && data.images!.isNotEmpty
+                      ? Image.network(
+                    data.images![0].src!,
+                    height: 120,
+                  )
+                      : Container(), // Resim yoksa boş bir container göster
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white,
+                        offset: Offset(0, 5),
+                        blurRadius: 15,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: 4, left: 4),
-                width: 130,
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  children: [
-                    Text(
-                      '₺${data.regularPrice}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        decoration: TextDecoration.lineThrough,
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
+                Container(
+                  width: 130,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    data.name ?? '', // data.name null ise boş bir string göster
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontFamily: "Poppins"
                     ),
-                    SizedBox(width: 5),
-                    Text(
-                      '₺${data.salePrice}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Container(
+                  margin: EdgeInsets.only(top: 4, left: 4),
+                  width: 130,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      Text(
+                        '₺${data.regularPrice}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          decoration: TextDecoration.lineThrough,
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        '₺${data.salePrice}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

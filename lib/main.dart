@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hizligida/pages/PayWithIyzicoExample.dart';
 import 'package:hizligida/pages/base_page.dart';
+import 'package:hizligida/pages/cart_page.dart';
+import 'package:hizligida/pages/orders_page.dart';
 import 'package:hizligida/pages/product_page.dart';
 import 'package:hizligida/pages/home_page.dart';
+import 'package:hizligida/pages/verify_adress.dart';
 import 'package:hizligida/provider/cart_provider.dart';
 import 'package:hizligida/provider/load_provider.dart';
+import 'package:hizligida/provider/master_provider.dart';
+import 'package:hizligida/provider/order_provider.dart';
 import 'package:hizligida/provider/products_provider.dart';
+import 'package:hizligida/provider/user_Provider.dart';
 import 'package:provider/provider.dart';
 //import 'package:hizligida/pages/product_details.dart';
 
@@ -31,6 +38,20 @@ class MyApp extends StatelessWidget {
           create: (context) => CartProvider(),
 
         ),
+        ChangeNotifierProvider(
+          create: (context) => CartProvider(),
+          child: CartPage(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => OrderProvider(),
+          child: OrdersPage(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MastersProvider(),
+          child: VerifyAddress(),
+        ),
+        ChangeNotifierProvider(create: (context) => UserModel()
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -49,12 +70,14 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: HomePage(),
+        home: WebViewExample(),
+        //HomePage(),
         routes: {
           '/home': (context) => HomePage(),
           '/product': (context) => ProductPage(),
           '/base': (context) => BasePage(),
         },
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
